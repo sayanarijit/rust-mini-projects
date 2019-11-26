@@ -1,5 +1,16 @@
+use std::env;
 use std::error::Error;
 use std::fs;
+
+/// This parses the commandline arguments
+/// and returns an instance containing the values.
+///
+/// # Examples
+/// ```
+/// let args = Args::new(env::args()).unwrap_or_else(|err| {
+///     eprintln!("{}", err);
+///     process::exit(1);
+/// });
 
 pub struct Args {
     pub query: String,
@@ -7,27 +18,34 @@ pub struct Args {
 }
 
 impl Args {
-    pub fn new(args: &Vec<String>) -> Result<Args, &'static str> {
+    pub fn new(mut args: env::Args) -> Result<Args, &'static str> {
         if args.len() != 3 {
             return Err("Usage: minigrep QUERY FILENAME");
         }
 
-        let query = args[1].to_owned();
-        let filename = args[2].to_owned();
+        args.next();
+
+        let query = args.next().unwrap();
+        let filename = args.next().unwrap();
         Ok(Args { query, filename })
     }
 }
 
 pub fn search<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
-    let mut results = vec![];
+    // let mut results = vec![];
 
-    for line in contents.lines() {
-        if line.contains(query) {
-            results.push(line);
-        }
-    }
+    // for line in contents.lines() {
+    //     if line.contains(query) {
+    //         results.push(line);
+    //     }
+    // }
 
-    results
+    // results
+
+    contents
+        .lines()
+        .filter(|line| line.contains(query))
+        .collect()
 }
 
 pub fn run(args: Args) -> Result<(), Box<dyn Error>> {
